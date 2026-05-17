@@ -279,3 +279,37 @@ Done when:
   layout, frontend build artifacts, and rollback steps.
 - Service definitions exist for web, worker, scheduler, and MCP as applicable.
 - Health checks support internal load balancing.
+
+## Milestone 10: Public Marketing Website
+
+Goal: Prospective customers can understand the product, evaluate fit, and find a
+clear next step without signing in.
+
+Demo script:
+
+1. Open the public home page in a browser without an authenticated session.
+2. Confirm the page explains who OutageWise is for and what outage-monitoring
+   problem it solves.
+3. Navigate to pricing, product details, and documentation or contact entry
+   points from the public navigation.
+4. Resize the browser to mobile width and confirm the page remains readable.
+5. Confirm authenticated product navigation and private account data are absent.
+
+Manual checks:
+
+- Marketing routes render without requiring authentication.
+- Public pages do not expose customer monitor, outage, analytics, or account
+  data.
+- Calls to action have working routes or clearly stubbed next-step behavior.
+- The public site uses the same asset pipeline and design primitives as the
+  Rails app without becoming a monolithic Elm app.
+- SEO basics are present, including descriptive titles, meta descriptions, and
+  crawlable HTML content.
+
+Done when:
+
+- A public landing page and supporting marketing pages are implemented.
+- Public navigation is separate from authenticated dashboard navigation.
+- Request or system tests cover anonymous access and private-data exclusion.
+- The README or roadmap identifies how to run and review the public site
+  locally.

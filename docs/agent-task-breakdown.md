@@ -1283,6 +1283,257 @@ Manual test:
 - Run the verification flow in a staging environment and confirm service state
   before and after rollback.
 
+## Milestone 10 Tasks: Public Marketing Website
+
+### Task 10.1: Add Public Marketing Routes and Controller
+
+Context:
+
+- The Rails app currently needs a public-facing website separate from the
+  authenticated product and customer status pages.
+- Marketing pages should not require customer data or authentication.
+
+Goal:
+
+- Add conventional Rails routes and controller actions for public marketing
+  pages.
+
+Implementation notes:
+
+- Include routes for home, product, pricing, and contact or early-access pages.
+- Keep controller actions read-only.
+- Do not wire these routes to dashboard, monitor, outage, analytics, or account
+  data.
+- If authentication does not exist yet, still keep names and controller
+  structure ready for anonymous access.
+
+Acceptance criteria:
+
+- Public marketing routes render successfully in a browser.
+- Routes are named clearly enough to use from navigation and tests.
+- Marketing controller actions do not query customer-owned tables.
+
+Manual test:
+
+- Start the app and visit each marketing route without signing in.
+
+### Task 10.2: Add a Public Marketing Layout and Navigation
+
+Context:
+
+- Public marketing pages need navigation that is distinct from authenticated
+  product navigation.
+
+Goal:
+
+- Add a public layout or layout branch with marketing-focused navigation.
+
+Implementation notes:
+
+- Include links for home, product, pricing, contact or early access, and a sign
+  in or app entry point if such a route exists.
+- Do not show dashboard management links, monitor controls, private account
+  names, or status-page embed chrome.
+- Keep the layout responsive using the repo's current asset stack. If Tailwind
+  and DaisyUI are not implemented yet, use scoped plain CSS and document that it
+  can be migrated later.
+
+Acceptance criteria:
+
+- Marketing pages share consistent public navigation.
+- Authenticated dashboard navigation is not present on public marketing pages.
+- Navigation remains usable at mobile width.
+
+Manual test:
+
+- Resize the browser from desktop to mobile width and confirm navigation and
+  page content do not overlap.
+
+### Task 10.3: Build the Public Home Page
+
+Context:
+
+- Prospective customers need to understand what OutageWise does before signing
+  in.
+
+Goal:
+
+- Create a public home page that explains the product, target customer, and
+  primary value.
+
+Implementation notes:
+
+- Focus copy on HTTP outage detection, public status communication, analytics,
+  and read-only agent visibility.
+- Include one primary call to action and one secondary call to action.
+- Keep content crawlable in server-rendered HTML.
+- Avoid claiming features are live if they are still roadmap-only.
+
+Acceptance criteria:
+
+- The home page explains who the product is for.
+- The page describes the outage-monitoring problem and OutageWise's approach.
+- Calls to action link to implemented routes or clearly stubbed next-step pages.
+
+Manual test:
+
+- Open the public home page and confirm a first-time visitor can identify the
+  product purpose and next step without using private app navigation.
+
+### Task 10.4: Build Product and Pricing Pages
+
+Context:
+
+- Visitors need enough detail to evaluate whether the product fits their use
+  case.
+
+Goal:
+
+- Add public product and pricing pages with honest, vendor-agnostic content.
+
+Implementation notes:
+
+- Product content should describe monitoring, status pages, analytics, MCP
+  visibility, and notifications as appropriate to current product maturity.
+- Pricing can be simple and clearly marked as early or placeholder if final
+  billing is not implemented.
+- Do not add payment provider integrations in this task.
+- Do not introduce provider-specific language unless the roadmap calls for it.
+
+Acceptance criteria:
+
+- Product page explains the main capabilities and release maturity.
+- Pricing page presents a clear expected pricing or early-access position.
+- Pages link back to the primary call to action.
+
+Manual test:
+
+- Navigate from the home page to product and pricing pages and confirm the user
+  can return to the primary call to action.
+
+### Task 10.5: Add Contact or Early-Access Capture Path
+
+Context:
+
+- Marketing calls to action need a concrete next step even before billing or
+  self-serve signup exists.
+
+Goal:
+
+- Add a contact or early-access page with safe, minimal behavior.
+
+Implementation notes:
+
+- If persistence and email delivery are not ready, use a clearly labeled static
+  contact path or mail link.
+- If adding a form, validate inputs and store only the minimum needed fields.
+- Do not send provider-specific email or CRM requests unless a provider-neutral
+  adapter boundary is part of the task.
+- Avoid collecting sensitive operational details on a public unauthenticated
+  page.
+
+Acceptance criteria:
+
+- Calls to action lead to a working page or safe form.
+- Invalid form input is handled clearly if a form is implemented.
+- The page does not require authentication.
+
+Manual test:
+
+- Follow each marketing call to action and confirm it reaches the contact or
+  early-access path.
+
+### Task 10.6: Add SEO and Social Metadata for Public Pages
+
+Context:
+
+- Public marketing pages should be understandable to search engines and link
+  previews.
+
+Goal:
+
+- Add descriptive titles, meta descriptions, canonical URLs where appropriate,
+  and basic Open Graph metadata for marketing pages.
+
+Implementation notes:
+
+- Keep metadata page-specific.
+- Ensure the primary page content remains server-rendered and crawlable.
+- Do not add third-party analytics or tracking scripts in this task.
+- Keep robots behavior intentional for public pages.
+
+Acceptance criteria:
+
+- Public pages render page-specific HTML titles.
+- Public pages include useful meta descriptions.
+- Link preview metadata is present for the public home page.
+
+Manual test:
+
+- View page source for each marketing page and confirm title and metadata match
+  the page purpose.
+
+### Task 10.7: Add Marketing Page Tests
+
+Context:
+
+- Public pages must remain accessible to anonymous visitors without leaking
+  private customer data.
+
+Goal:
+
+- Add request or system tests for the public marketing website.
+
+Implementation notes:
+
+- Test anonymous access to all marketing routes.
+- Test that public marketing pages do not render dashboard navigation or private
+  account/monitor/outage content.
+- Use Capybara system tests if the behavior is browser-visible and system test
+  support is configured; otherwise use request tests.
+- Keep tests deterministic and avoid external network requests.
+
+Acceptance criteria:
+
+- Tests cover successful anonymous page loads.
+- Tests cover separation from authenticated dashboard or customer status
+  surfaces where those surfaces exist.
+- Tests fail if obvious private navigation or data appears on marketing pages.
+
+Manual test:
+
+- Run the narrowest relevant test file and then manually visit each public
+  route.
+
+### Task 10.8: Document Local Marketing Site Review
+
+Context:
+
+- Future agents and humans need to know how to run and review the public site
+  locally.
+
+Goal:
+
+- Update README or docs with the local marketing website review flow.
+
+Implementation notes:
+
+- Include setup, server start, routes to visit, and the expected anonymous
+  access behavior.
+- Link to the Milestone 10 entry.
+- Mention any intentionally stubbed calls to action.
+
+Acceptance criteria:
+
+- Documentation identifies the public marketing routes.
+- Documentation explains how to review the pages locally.
+- Documentation distinguishes public marketing pages from customer status pages.
+
+Manual test:
+
+- Follow the documented steps from a clean local server and confirm each route
+  exists.
+
 ## Cross-Cutting Tasks
 
 ### Task X.1: Add Account Scoping Tests
