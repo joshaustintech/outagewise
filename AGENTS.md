@@ -1,84 +1,116 @@
 # AGENTS.md
 
-Guidance for coding agents working in this repository.
+Root instructions for coding agents. Keep this file under 150 lines; put detail
+in linked references.
 
-## Current Repository State
+## Current State
 
-OutageWise is currently an early Rails application skeleton plus product
-planning documentation. Treat the docs as the product direction, not as proof
-that the capability already exists.
-
-What exists now:
-
-- Rails app using Rails `~> 8.1.3`.
-- SQLite configured for the default Rails development and test databases.
-- Production configuration includes separate SQLite databases for primary,
-  cache, queue, and cable.
-- Solid Cache, Solid Queue, Solid Cable, Propshaft, Importmap, Turbo, Stimulus,
-  Jbuilder, Capybara, Selenium, Brakeman, Bundler Audit, and RuboCop Omakase
-  are present in the Gemfile.
-- Default Rails health route exists at `/up`.
-- No product root route is enabled yet.
-- No application domain models are implemented yet.
-- `db/schema.rb` is empty at schema version `0`.
+- This is an early Rails `~> 8.1.3` app skeleton with product planning docs.
+- The only live application route is `/up`; no product root route exists yet.
+- `db/schema.rb` is empty at schema version `0`; no domain models exist yet.
+- SQLite is configured for default development/test databases. Production also
+  has separate SQLite databases for primary, cache, queue, and cable.
 - `bin/dev` currently starts the Rails server directly.
-- Product planning lives in `docs/`.
+- Planned but not yet implemented: accounts, users, catalog plus per-customer
+  databases, monitors, check runs, outages, analytics, status pages,
+  notifications, MCP visibility, Vite, Elm, Tailwind, DaisyUI, public marketing
+  pages, and Linux service definitions.
 
-What is planned but not implemented yet:
+Real current route example from [config/routes.rb](config/routes.rb):
 
-- Account and user foundation.
-- Catalog database plus per-customer SQLite database routing.
-- HTTP monitors, check runs, outages, analytics, status pages, notifications,
-  and MCP visibility.
-- Vite, Elm, Tailwind CSS, and DaisyUI frontend pipeline.
-- Public marketing website.
-- Linux-native deployment service definitions.
+```ruby
+get "up" => "rails/health#show", as: :rails_health_check
+```
 
-## Product Direction
+## Implementation Workflow
 
-OutageWise is an HTTP outage detection service with customer-visible status
-pages, analytics, and authenticated read-only MCP visibility for customer
-agents.
+1. Read the relevant reference doc before editing.
+2. Write or update the failing test first.
+3. Implement the smallest scoped change that satisfies the task.
+4. Run the narrowest relevant test command.
+5. Run any relevant build, lint, security, or audit command for touched code.
+6. Update docs when commands, setup, behavior, architecture, or milestone state
+   changes.
 
-Core product constraints from the roadmap:
+## Definition Of Done
 
-- Keep the product AI-vendor-agnostic.
-- Keep runtime providers, hosting providers, observability tools, notification
-  providers, and MCP clients replaceable behind documented interfaces.
-- Use Rails conventions first.
-- Use SQLite, eventually with one catalog database plus per-customer SQLite
-  databases.
-- Use `http.rb` for HTTP monitor checks when HTTP checking is implemented.
-- Use Rails-rendered pages as the main app structure.
-- Use Elm only for focused interactive widgets, not as a monolithic SPA.
-- Use Tailwind CSS and DaisyUI for the future design-system baseline.
-- Make milestones manually demoable and testable before adding external
-  providers or production infrastructure.
-- The first deployable target is Linux-native services, not Docker as the
-  required deliverable.
+A subtask is done only when tests and relevant build checks pass locally. If a
+required command cannot run, name the command, the reason, and the residual
+risk in the handoff.
 
-## Working Rules
+## Decision Tables
 
-- Read the relevant roadmap, milestone, and task sections before implementing a
-  feature.
-- Keep code changes scoped to the task.
-- Do not introduce vendor-specific implementations where the roadmap calls for
-  provider-neutral boundaries.
-- Do not assume planned architecture exists. Check the current code first.
-- Do not store customer-owned monitoring data in a shared place without an
-  explicit account/customer database decision.
-- Prefer Rails models, controllers, jobs, services, and query objects in
-  conventional locations.
-- Add migrations for schema changes. Do not hand-edit `db/schema.rb`.
-- Add tests close to the behavior being changed.
-- Keep public surfaces read-only unless the task explicitly requires writes.
+| Use this | When |
+|---|---|
+| `docs/product-roadmap.md` | Need product principles, architecture direction, or release slices |
+| `docs/milestones.md` | Need demoable milestone goals and done criteria |
+| `docs/agent-task-breakdown.md` | Need small implementation tasks for agents |
+| `README.md` | Need the short human-facing project summary |
+
+| Use this | When |
+|---|---|
+| Rails models/controllers/jobs/services/query objects | Normal application behavior |
+| Rails-rendered pages | Page structure, navigation, and crawlable content |
+| Elm widgets | Focused interactive or AJAX-driven regions only |
+| Tailwind CSS and DaisyUI | Future frontend design-system primitives |
+| Plain scoped CSS | Only until Tailwind/DaisyUI are implemented |
+
+| Use this | When |
+|---|---|
+| Model/service/job/request tests | Backend behavior and authorization boundaries |
+| Capybara system tests | Browser-visible flows |
+| Deterministic fixtures and explicit timestamps | Outage, check-run, and analytics tests |
+| Manual browser/console checks | Extra verification after automated tests pass |
+
+## Cross-Cutting Rules
+
+- Use TDD for implementation work. Write or update the failing test before
+  changing production code.
+- Keep changes scoped to the requested task. Leave unrelated files and user
+  edits alone.
+- Use provider-neutral boundaries for runtime services, hosting, observability,
+  notifications, and MCP clients.
+- Use Rails conventions first: resourceful controllers, service objects for
+  domain operations, query objects for reusable reads, and jobs for background
+  work.
+- Add migrations for schema changes. Keep `db/schema.rb` generated by Rails.
+- Use SQLite as planned: catalog data routes requests/jobs to the correct
+  per-customer database; customer-owned monitoring data belongs in the owning
+  customer's database.
+- Customers must never access another customer's data. Enforce account/customer
+  scoping in routes, controllers, queries, jobs, services, public pages, MCP
+  boundaries, and tests.
+- Keep Rails performance and security in mind. Use bounded queries,
+  authorization checks, strong parameters, and eager loading where needed.
+- Use `http.rb` for HTTP monitor checks when that feature is implemented.
 - Keep public marketing pages, public status pages, and authenticated dashboard
   pages separated in routes, layouts, and navigation.
-- Do not remove or rewrite unrelated work.
+- Keep public status-page and MCP access read-only unless a task explicitly
+  changes that product rule.
+- Use Elm only for focused widgets. Define typed encoders and decoders for every
+  JSON boundary; construct JSON through those helpers instead of hardcoded
+  strings.
+- Keep frontend pages server-rendered and crawlable unless a task explicitly
+  requires client-side state.
+- Do not introduce Docker as the required first deployable target. Use the
+  Linux-native deployment direction in the roadmap.
+
+## Do / Do Not Pairs
+
+- Do read the current code before using roadmap assumptions. Do not treat
+  planned features as implemented.
+- Do add a test close to changed behavior. Do not finish a code task with only
+  manual verification.
+- Do document skipped verification with a reason. Do not call a failing or
+  unrun verification step complete.
+- Do use provider-neutral interfaces. Do not hard-code provider-specific
+  services unless the task asks for an adapter.
+- Do isolate customer data by account and customer database. Do not query shared
+  or cross-customer data without an explicit catalog-routing reason.
 
 ## Verification Commands
 
-Use the narrowest command that proves the change. Useful commands in this repo:
+Run the narrowest useful command first, then broaden as risk increases.
 
 ```sh
 bin/rails test
@@ -90,153 +122,16 @@ bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
 bin/ci
 ```
 
-Notes:
+`bin/ci` runs setup, Ruby style, gem audit, importmap audit, Brakeman, Rails
+tests, and seed replant. System tests are optional in CI today but required for
+browser-visible flows when system test support exists.
 
-- `bin/ci` runs setup, Ruby style, gem audit, importmap audit, Brakeman, Rails
-  tests, and seed replant.
-- System tests are present as an optional CI step and should be run for
-  browser-visible flows when they exist.
-- If Vite, Elm, Tailwind, or DaisyUI are added later, update this file with the
-  frontend build and watch commands.
+## References
 
-## Documentation Table Of Contents
-
-### README
-
-[README.md](README.md)
-
-- Project summary.
-- Links to the product planning docs.
-
-### Product Roadmap
-
-[docs/product-roadmap.md](docs/product-roadmap.md)
-
-- Product Vision
-- Product Principles
-- Technical Direction
-  - Application Runtime
-  - Data Storage
-  - HTTP Checking
-  - Frontend
-  - Local Development
-  - Testing
-  - Deployment and Operations
-- Core Concepts
-- Roadmap Phases
-  - Phase 0: Product Foundation
-  - Phase 1: Manual HTTP Monitoring
-  - Phase 2: Outage Detection
-  - Phase 3: Scheduled Checks
-  - Phase 4: Customer Status Page
-  - Phase 5: Analytics
-  - Phase 6: Authenticated Read-Only MCP Server
-  - Phase 7: Notifications and Escalation
-  - Phase 8: Reliability, Security, and Scale
-- Non-Goals for the First Release
-- Release Slices
-  - Local Alpha
-  - Private Beta
-  - Public Beta
-- Vendor-Agnostic Architecture Guidelines
-
-### Demoable Milestones
-
-[docs/milestones.md](docs/milestones.md)
-
-- Milestone 0: Local Product Skeleton
-- Milestone 1: Monitor CRUD
-- Milestone 2: Manual Check Runs
-- Milestone 3: Outage State Machine
-- Milestone 4: Scheduled Monitoring
-- Milestone 5: Embeddable Status Page
-- Milestone 6: Analytics Summary
-- Milestone 7: Read-Only MCP Visibility
-- Milestone 8: Notification Records and Provider Interfaces
-- Milestone 9: Linux Native Deployment
-- Milestone 10: Public Marketing Website
-
-### Agent Task Breakdown
-
-[docs/agent-task-breakdown.md](docs/agent-task-breakdown.md)
-
-- Universal Task Instructions
-- Preferred task shape
-- Milestone 0 Tasks: Local Product Skeleton
-  - Task 0.1: Add Product Routes and Placeholder Controllers
-  - Task 0.2: Create Account and User Foundation
-  - Task 0.3: Add Basic Product Layout
-  - Task 0.4: Configure SQLite Catalog and Customer Databases
-  - Task 0.5: Configure Vite, Elm, Tailwind, and DaisyUI
-  - Task 0.6: Make `bin/dev` Frontend-Build-Aware
-  - Task 0.7: Add Frontend File Watch Rebuilds
-  - Task 0.8: Configure Capybara System Tests
-- Milestone 1 Tasks: Monitor CRUD
-  - Task 1.1: Add Monitor Model
-  - Task 1.2: Build Monitor List and Detail Pages
-  - Task 1.3: Add Monitor Create and Edit Forms
-  - Task 1.4: Add Disable and Delete Behavior
-- Milestone 2 Tasks: Manual Check Runs
-  - Task 2.1: Add Check Run Model
-  - Task 2.2: Implement HTTP Check Service
-  - Task 2.3: Add Manual Run Check Action
-  - Task 2.4: Render Recent Check History
-- Milestone 3 Tasks: Outage State Machine
-  - Task 3.1: Add Outage Model
-  - Task 3.2: Add Outage Transition Service
-  - Task 3.3: Integrate Outage Transitions with Manual Checks
-  - Task 3.4: Show Current Status on Dashboard
-- Milestone 4 Tasks: Scheduled Monitoring
-  - Task 4.1: Add Scheduling Fields to Monitors
-  - Task 4.2: Implement Due Monitor Query
-  - Task 4.3: Add Check Job
-  - Task 4.4: Add Scheduler Job
-- Milestone 5 Tasks: Embeddable Status Page
-  - Task 5.1: Add Status Page Settings
-  - Task 5.2: Render Public Status Page
-  - Task 5.3: Add Iframe Embed Mode
-  - Task 5.4: Add Status Page Data Presenter
-- Milestone 6 Tasks: Analytics Summary
-  - Task 6.1: Define Analytics Summary Object
-  - Task 6.2: Calculate Uptime Percentage
-  - Task 6.3: Calculate Latency and Failure Breakdown
-  - Task 6.4: Render Analytics Page
-- Milestone 7 Tasks: Read-Only MCP Visibility
-  - Task 7.1: Add MCP Token Model
-  - Task 7.2: Add MCP Authentication Boundary
-  - Task 7.3: Expose Current Status Through MCP
-  - Task 7.4: Expose Outages and Analytics Through MCP
-  - Task 7.5: Add MCP Usage Audit
-- Milestone 8 Tasks: Notification Records and Provider Interfaces
-  - Task 8.1: Add Notification Contact Model
-  - Task 8.2: Add Notification Event and Delivery Models
-  - Task 8.3: Add Provider-Neutral Notification Adapter
-  - Task 8.4: Generate Notifications from Outage Transitions
-- Milestone 9 Tasks: Linux Native Deployment
-  - Task 9.1: Document Linux Release Layout
-  - Task 9.2: Add Linux Service Definitions
-  - Task 9.3: Add Health Check Endpoint for Internal Load Balancing
-  - Task 9.4: Add Restart and Rollback Verification Script
-- Milestone 10 Tasks: Public Marketing Website
-  - Task 10.1: Add Public Marketing Routes and Controller
-  - Task 10.2: Add a Public Marketing Layout and Navigation
-  - Task 10.3: Build the Public Home Page
-  - Task 10.4: Build Product and Pricing Pages
-  - Task 10.5: Add Contact or Early-Access Capture Path
-  - Task 10.6: Add SEO and Social Metadata for Public Pages
-  - Task 10.7: Add Marketing Page Tests
-  - Task 10.8: Document Local Marketing Site Review
-- Cross-Cutting Tasks
-  - Task X.1: Add Account Scoping Tests
-  - Task X.2: Add Retention Policy Interface
-  - Task X.3: Document Manual Demo Flow
-
-## When Adding New Work
-
-Before finishing a change, update documentation when the repo state changes in
-a way future agents must know about. In particular, update this file when:
-
-- The implemented stack differs from the planned stack.
-- New setup, test, build, or run commands are introduced.
-- A milestone moves from planned to partially or fully implemented.
-- New docs are added or existing docs are reorganized.
+- [README.md](README.md): short project summary.
+- [docs/product-roadmap.md](docs/product-roadmap.md): product principles,
+  technical direction, phases, release slices, and architecture constraints.
+- [docs/milestones.md](docs/milestones.md): demo scripts, manual checks, and
+  done criteria for milestones 0-10.
+- [docs/agent-task-breakdown.md](docs/agent-task-breakdown.md): small tasks for
+  compact coding agents.

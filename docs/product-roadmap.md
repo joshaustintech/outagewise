@@ -37,6 +37,11 @@ product constraints and should be assumed by implementation agents.
 - Use Rails conventions first: resourceful controllers, service objects for
   domain operations, plain query objects for reusable reads, and tests close to
   the behavior being changed.
+- Use test-driven development for implementation work. Start with a failing
+  test or an updated failing test before changing production code.
+- Treat performance and security as default Rails implementation concerns.
+  Avoid avoidable N+1 queries, unbounded reads, unsafe parameter handling, and
+  broad authorization scopes.
 
 ### Data Storage
 
@@ -51,6 +56,9 @@ product constraints and should be assumed by implementation agents.
   to the correct customer database.
 - Keep customer data isolation explicit in code and tests. A task that reads or
   writes customer data must say which customer database it uses.
+- Customers must never have access to another customer's data through the
+  dashboard, public status pages, background jobs, analytics, notification
+  records, MCP surfaces, or marketing pages.
 
 ### HTTP Checking
 
@@ -72,6 +80,8 @@ product constraints and should be assumed by implementation agents.
 - Follow Elm best practices: small modules, explicit ports only when needed,
   typed API payloads, narrow update functions, and focused components mounted
   into server-rendered pages.
+- Define Elm encoders and decoders for every JSON boundary. Avoid hardcoded JSON
+  strings and ad hoc JSON construction in Elm modules and tests.
 
 ### Local Development
 
@@ -85,6 +95,7 @@ product constraints and should be assumed by implementation agents.
 
 ### Testing
 
+- TDD is required for implementation work.
 - Use Capybara for frontend/system tests.
 - Test Rails models, services, jobs, controllers, and request boundaries with
   the narrowest test type that proves the behavior.
@@ -92,6 +103,9 @@ product constraints and should be assumed by implementation agents.
   runs, status page embed behavior, analytics rendering, and Elm interactives.
 - Prefer deterministic fixtures and explicit timestamps for outage and analytics
   tests.
+- Passing build and tests are part of the definition of done for every subtask.
+  If a relevant command cannot be run locally, the reason and residual risk must
+  be documented with the change.
 
 ### Deployment and Operations
 

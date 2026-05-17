@@ -12,8 +12,13 @@ Every implementation task should include:
 - Constraints: Keep changes scoped to the task. Do not add provider-specific
   services unless the task asks for an adapter boundary.
 - Expected output: Code, tests, and any small docs updates needed for the task.
-- Verification: Run the narrowest relevant automated tests. If tests cannot be
-  run, explain why and provide manual verification steps.
+- TDD requirement: Write or update a failing test first, then implement the
+  smallest change that makes it pass.
+- Verification: Run the narrowest relevant automated tests, plus any relevant
+  build, lint, security, or audit command for the touched area. If a command
+  cannot be run, explain why and provide manual verification steps.
+- Definition of done: Passing build and tests are required for every subtask.
+  A subtask is not done while relevant local verification is failing.
 - Safety: Do not remove unrelated files or revert unrelated user changes.
 
 Default stack assumptions for every task:
@@ -25,10 +30,18 @@ Default stack assumptions for every task:
 - Use Elm, Tailwind CSS, DaisyUI, and Vite for frontend assets.
 - Use Rails-rendered pages as the main app structure; mount Elm only for
   individual interactives and AJAX widgets.
+- For Elm code, use typed encoders and decoders at every JSON boundary. Avoid
+  hardcoded JSON strings and ad hoc JSON construction.
 - Use the `http.rb` gem for HTTP monitor checks.
 - The deployable target is Linux native services, not Docker.
 - Follow Rails best practices and Elm best practices unless a local pattern
   gives a more specific answer.
+- For Rails code, keep performance and security in mind by default. Avoid N+1
+  queries, unbounded reads, unsafe parameter handling, and broad authorization
+  scopes.
+- Customers must never have access to another customer's data. Account/customer
+  scoping must be explicit in controllers, queries, jobs, services, public
+  pages, MCP boundaries, and tests.
 
 Preferred task shape:
 
@@ -44,9 +57,11 @@ Goal:
 
 Implementation notes:
 - Specific guidance without prescribing every line of code.
+- Which failing test should be written or updated first.
 
 Acceptance criteria:
 - Observable outcomes.
+- Relevant build, lint, security, and automated tests pass.
 
 Manual test:
 - Browser or console steps a human can perform.
