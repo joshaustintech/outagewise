@@ -10,5 +10,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 0) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_17_000002) do
+  create_table "accounts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_accounts_on_slug", unique: true
+  end
+
+  create_table "customer_databases", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.datetime "created_at", null: false
+    t.string "database_path", null: false
+    t.string "label", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_customer_databases_on_account_id", unique: true
+    t.index ["database_path"], name: "index_customer_databases_on_database_path", unique: true
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_users_on_account_id"
+    t.index ["email"], name: "index_users_on_email", unique: true
+  end
+
+  add_foreign_key "customer_databases", "accounts"
+  add_foreign_key "users", "accounts"
 end

@@ -1,0 +1,5 @@
+demo:
+  account: demo
+  label: Demo Customer
+  database_path: storage/test_customer_demo.sqlite3
+

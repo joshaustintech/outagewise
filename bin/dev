@@ -1,2 +1,36 @@
 #!/usr/bin/env ruby
-exec "./bin/rails", "server", *ARGV
+require "English"
+
+APP_ROOT = File.expand_path("..", __dir__)
+
+Dir.chdir(APP_ROOT) do
+  puts "== Building frontend assets =="
+  unless system("npm", "run", "build")
+    warn "Frontend build failed; Rails server was not started."
+    exit($CHILD_STATUS.exitstatus || 1)
+  end
+
+  processes = []
+
+  shutdown = lambda do
+    processes.each do |pid|
+      begin
+        Process.kill("TERM", pid)
+      rescue Errno::ESRCH
+      end
+    end
+  end
+
+  Signal.trap("INT") { shutdown.call }
+  Signal.trap("TERM") { shutdown.call }
+
+  puts "== Starting frontend watcher =="
+  processes << spawn("npm", "run", "watch")
+
+  puts "== Starting Rails server =="
+  processes << spawn("./bin/rails", "server", *ARGV)
+
+  _pid, status = Process.wait2
+  shutdown.call
+  exit(status.exitstatus || 1)
+end

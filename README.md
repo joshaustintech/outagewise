@@ -15,3 +15,18 @@ without vendor-specific assumptions:
 
 Each milestone is designed to be manually demoable and testable. Each task is
 small enough to hand to a compact coding model with the context it needs.
+
+## Local Demo
+
+Run setup, then start the product shell:
+
+```sh
+bin/setup --skip-server
+bin/dev
+```
+
+Milestone 0 uses `storage/development_catalog.sqlite3` for account metadata and
+`storage/development_customer_demo.sqlite3` as the prepared per-customer
+database for customer-owned monitoring data. Authentication is represented by a
+seeded demo user for now; the sign-in flow is intentionally left for the next
+product slice.

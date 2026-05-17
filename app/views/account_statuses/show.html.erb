@@ -1,0 +1,21 @@
+<% content_for :title, "Account Status | OutageWise" %>
+
+<section class="space-y-6">
+  <div>
+    <p class="text-sm font-medium uppercase text-base-content/60">Read-only public view</p>
+    <h1 class="mt-2 text-3xl font-semibold">Account Status</h1>
+    <p class="mt-3 max-w-2xl text-base-content/75">
+      <%= current_account&.name || "Demo account" %> status will summarize
+      published monitors and recent incidents.
+    </p>
+  </div>
+
+  <div class="rounded-lg border border-base-300 bg-base-100 p-6">
+    <div class="badge badge-info badge-outline">Awaiting monitors</div>
+    <h2 class="mt-4 text-xl font-semibold">No monitors are publishing status yet</h2>
+    <p class="mt-3 max-w-2xl text-base-content/70">
+      Once monitors exist, this page will show the current customer-visible
+      service state without exposing dashboard controls.
+    </p>
+  </div>
+</section>

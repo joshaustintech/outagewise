@@ -34,8 +34,8 @@ Done when:
 - Seed data creates one account and one demo user or demo session.
 - SQLite is configured with a catalog database and at least one per-customer
   database for local demos.
-- Rails 8 authentication and job-processing defaults are present or explicitly
-  stubbed for the next milestone.
+- Rails 8 job-processing defaults are present, and authentication is explicitly
+  stubbed with a seeded demo user until the sign-in flow is introduced.
 - Capybara is configured for browser-visible system tests.
 - Basic layout is usable on desktop and narrow browser widths.
 
